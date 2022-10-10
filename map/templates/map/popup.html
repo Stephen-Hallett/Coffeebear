@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<head>
+<style>
+    .popup-content{
+        font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', sans-serif;
+        padding: 0;
+        width: 350px;
+        height: 108px;
+        display: inline-block;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        position: absolute;
+        border-radius: 2px;
+    }
+
+    #popup-img{
+        width: 31%;
+        height: 100%;
+        position: absolute;
+        display: inline-block;
+        left:0;
+    }
+
+    .popup-main{
+        text-align: center;
+        display: inline-block;
+        position: relative;
+        height: 100%;
+        left: 31%;
+        width: 69%;
+        top:-1px;
+    }
+
+    .popup-header{
+        background-color: #5183AE;
+        height: 50%;
+    }
+
+    #popup-title{
+        padding-top: 1%;
+        font-weight:bold;
+        color: #fff;
+        font-size: 1.5vw;
+    }
+
+    #popup-address{
+        line-height: 1.3;
+        text-align: left;
+        font-size:1vw;
+        padding-left:2%;
+        padding-right:2%;
+        color: #fff;
+        padding-bottom: 1%;
+    }
+
+    .popup-main table{
+        border-top: 1px solid rgba(0, 0, 0, 0.3);
+        width:100%;
+        height:50%;
+        border-collapse: collapse;
+        top: 50%
+    }
+
+    .table-headers{
+        font-weight:bold;
+        font-size: 50%;
+        line-height:80%;
+        border-top: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+
+    td{
+        padding: 0;
+        margin:0;
+        border-right: 1px solid rgba(0, 0, 0, 0.3);
+        border-left: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+    tr{
+        padding: 0;
+        margin:0;
+    }
+
+    .individual{
+        line-height: 70%;
+    }
+
+    .individual-rating{
+        border-top: 1px solid rgba(0, 0, 0, 0.3);
+        font-size:85%;
+    }
+
+    .individual-name{
+        font-size:40%;
+    }
+
+    .rating{
+        font-size: 150%;
+    }
+
+    .sans{
+        background-color: #ffb9fe;
+    }
+
+    .steve{
+        background-color: #7ea4ff;
+        padding:0;
+        margin:0;
+    }
+
+    .col{
+        width: 20%;
+    }
+
+    .overall-rating{
+        font-weight: 600;
+    }
+
+    .overall{
+        border-right:none;
+    }
+
+</style>
+
+
+
+</head>
+
+
+<body>
+    <div class="popup-content">
+        <div id="popup-img">
+            <img src="../map/static/map/main_images/'+currentFeature.properties.id+'.png" width="100%" height="100%"/>
+        </div>
+        <div class="popup-main">
+            <div class="popup-header">
+                <div id="popup-title">
+                    '+currentFeature.properties.name+'
+                </div>
+                <div id="popup-address">
+                    '+currentFeature.properties.address+'
+                </div>
+            </div>
+            <table>
+                <tr>
+                    <td class="individual-rating individual sans col">'+currentFeature.properties.sans_rating+'</td>
+                    <td rowspan="4" class="rating col">'+currentFeature.properties.coffee_rating+'</td>
+                    <td rowspan="4" class="rating col">'+currentFeature.properties.food_rating+'</td>
+                    <td rowspan="4" class="rating col">'+currentFeature.properties.ambience_rating+'</td>
+                    <td rowspan="4" class="overall overall-rating rating col">'+currentFeature.properties.overall_rating+'</td>
+                </tr>
+                <tr class="individual-name individual sans col">
+                    <td>Sanskruti</td>
+                </tr>
+                <tr>
+                    <td class="individual-rating individual steve col">'+currentFeature.properties.stephen_rating+'</td>
+                </tr>
+                <tr class="individual-name individual steve col">
+                    <td>Stephen</td>
+                </tr>
+                <tr class="table-headers">
+                    <td colspan="2">Coffee</td>
+                    <td class="food col">Food</td>
+                    <td class="ambience col">Ambience</td>
+                    <td class="overall col">Overall</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</body>

@@ -1,0 +1,458 @@
+{% extends 'map/base.html' %}
+{% load static %} 
+
+{% block content %}
+
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+
+<div class="content">
+    <div class='sidebar'>
+        <div class='heading'>
+        <h1>Cafes</h1>
+        </div>
+        <div id='cafe_list' class='cafe_list'></div>
+    </div>
+    <div class="map" id="map"></div>
+</div>
+<style>
+    * {
+    box-sizing: border-box;
+    }
+
+    .content {
+        position:absolute;
+        color: #404040;
+        font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', sans-serif;
+        margin: 0;
+        -webkit-font-smoothing: antialiased;
+        height:100%;
+        width:100%
+    }
+
+    h1 {
+        font-size: 22px;
+        margin: 0;
+        font-weight: 400;
+        line-height: 20px;
+        padding: 20px 2px;
+    }
+
+    a {
+    color: #404040;
+    text-decoration: none;
+    }
+
+    a:hover {
+        color: #101010;
+    }
+
+    .map {
+        position: absolute;
+        left: 33.3333%;
+        width: 66.6666%;
+        top: 0;
+        bottom: 0;
+    }
+
+    .heading {
+        background: #fff;
+        border-bottom: 1px solid #eee;
+        min-height: 60px;
+        line-height: 60px;
+        padding: 0 10px;
+        background-color: #5183AE;
+        color: #fff;
+    }
+
+    .sidebar {
+        position: absolute;
+        width: 33.3333%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        border-right: 1px solid rgba(0, 0, 0, 0.25);
+    }
+
+    .marker-pink {
+        background-image: url('../map/static/map/marker-icons/mapbox-marker-icon-20px-pink.png');
+        width: 20px;
+        height: 45px;
+        cursor: pointer;
+    }
+
+
+    .cafe_list {
+        height: 100%;
+        overflow: auto;
+        padding-bottom: 60px;
+    }
+
+    .cafe_list .item {
+        border-bottom: 1px solid #eee;
+        padding: 10px;
+        text-decoration: none;
+    }
+
+    .cafe_list .item:last-child { border-bottom: none; }
+
+    .cafe_list .item .title {
+        display: block;
+        color: #5183AE;
+        font-weight: 700;
+    }
+
+    .cafe_list .item .title small { font-weight: 400; }
+
+    .cafe_list .item.active .title,
+    .cafe_list .item .title:hover { color: #2f739d; }
+
+    .cafe_list .item.active {
+    background-color: #f8f8f8;
+    }
+
+    ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+    border-left: 0;
+    background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-track {
+    background: none;
+    }
+
+    ::-webkit-scrollbar-thumb {
+    background: #5183AE;
+    border-radius: 0;
+    }
+
+    .item tr{
+        font-size: large;
+        margin: 0px;
+        padding: 0px;
+        height: 50%;
+    }
+
+    .item tr p{
+        font-size: x-small;
+    }
+
+    .item table{
+        text-decoration: none;
+        text-align: center;
+        width: 100%;
+        margin-top:10px;
+    }
+
+    .item table tbody td{
+        border-left: 1px solid rgba(0, 0, 0, 0.3);;
+        border-right: 1px solid rgba(0, 0, 0, 0.3);;
+        text-decoration: none;
+        width:25%;
+        position: relative;
+    }
+
+    .item table tbody td:last-child{border-right:none;}
+    .item table tbody td:first-child{border-left:none;}
+
+    .item table tbody tr{
+        text-decoration: none;
+        height:20%;
+        margin: 0px;
+        padding: 0px;
+    }
+
+    #overall{
+        font-weight:bold;
+    }
+
+    #titles{
+        line-height: 20%;
+    }
+
+    .mapboxgl-popup-content {
+        padding: 0;
+        align-self: center;
+        font: 400 15px/22px 'Source Sans Pro', 'Helvetica Neue', sans-serif;
+        width: 350px;
+        height: 108px;
+        display: inline-block;
+        position: absolute;
+        border-radius: 2px;
+        border: 1px solid rgba(0, 0, 0, 0.5);
+        margin-bottom:9px
+    }
+
+    .mapboxgl-popup-tip {
+        width: 10;
+        height: 10;
+        border: 10px solid transparent;
+        z-index: 1;
+    }
+
+    .mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+        align-self: center;
+        border-bottom: none;
+        border-top-color:  rgba(0, 0, 0, 0.3);
+    }
+    
+
+    #popup-img{
+        width: 31%;
+        height: 100%;
+        position: absolute;
+        display: inline-block;
+        left:0;
+    }
+
+    .popup-main{
+        text-align: center;
+        display: inline-block;
+        position: relative;
+        height: 100%;
+        left: 31%;
+        width: 69%;
+        top:0px;
+    }
+
+    .popup-header{
+        background-color: #5183AE;
+        height: 50%;
+    }
+
+    #popup-title{
+        padding-top: 1%;
+        font-weight:bold;
+        color: #fff;
+        font-size: 130%;
+    }
+
+    #popup-address{
+        line-height: 1.1;
+        text-align: left;
+        font-size:80%;
+        padding-left:2%;
+        padding-right:2%;
+        color: #fff;
+        padding-bottom: 1%;
+    }
+
+    .popup-main table{
+        border-top: 1px solid rgba(0, 0, 0, 0.3);
+        width:100%;
+        height:50%;
+        border-collapse: collapse;
+        top: 50%
+    }
+
+    .table-headers{
+        font-weight:bold;
+        font-size: 50%;
+        line-height:80%;
+        border-top: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+
+    .popup-main td{
+        padding: 0;
+        margin:0;
+        border-right: 1px solid rgba(0, 0, 0, 0.3);
+        border-left: 1px solid rgba(0, 0, 0, 0.3);
+    }
+
+    .popup-main tr{
+        padding: 0;
+        margin:0;
+    }
+
+    .individual{
+        line-height: 70%;
+    }
+
+    .individual-rating{
+        border-top: 1px solid rgba(0, 0, 0, 0.3);
+        font-size:85%;
+    }
+
+    .individual-name{
+        font-size:40%;
+    }
+
+    .rating{
+        font-size: 140%;
+    }
+
+    .sans{
+        background-color: rgba(255,185,254, 0.6);
+    }
+
+    .steve{
+        background-color: rgba(126,164,255,0.6);
+        padding:0;
+        margin:0;
+    }
+
+    .col{
+        width: 20%;
+    }
+
+    .overall-rating{
+        font-weight: 600;
+    }
+
+    .overall{
+        border-right:none;
+    }
+
+</style>
+
+<script type="text/javascript">
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic3RldmFsaW5pIiwiYSI6ImNsOGYwazg4czAzMmczbm5ndjRoZ3podXkifQ.8QQzHOriQiNkgg68Wswhpw';
+
+    var map = new mapboxgl.Map({
+        container: 'map', // container ID
+        // Choose from Mapbox's core styles, or make your own style with Mapbox Studio
+        style: 'mapbox://styles/stevalini/cl8f3pkpa000415ro5n2zkt46', // style URL
+        center: [174.759830, -36.860541], // starting position [lng, lat]
+        zoom: 13, // starting zoom
+    });
+
+    map.on('style.load', () => {
+        map.setFog({}); // Set the default atmosphere style
+    });
+
+    map.on('load', () => {
+        map.addSource('places',{
+            type: 'geojson',
+            data: geojson
+        });
+        addMarkers();
+        buildCafeList(geojson);      
+    });
+
+    const geojson = {
+        'type': 'FeatureCollection',
+        'features': [
+        {% for cafe in cafes %}
+            {
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Point',
+                    'coordinates': [{{ cafe.longitude }}, {{ cafe.latitude }}]
+                },
+                'properties': {
+                    'id': '{{ cafe.id }}',
+                    'name': '{{ cafe.name }}',
+                    'address': '{{ cafe.address }}',
+                    'overall_rating': '{{ cafe.overall_rating }}',
+                    'coffee_rating': '{{ cafe.coffee_rating }}',
+                    'stephen_rating': '{{ cafe.stephen_coffee_rating }}',
+                    'sans_rating': '{{ cafe.sans_coffee_rating }}',
+                    'food_rating': '{{ cafe.food_rating }}',
+                    'ambience_rating': '{{ cafe.ambience_rating }}',
+                }
+            },
+        {% endfor %}
+        ]
+    };
+
+    function buildCafeList(geojson){
+        for (const cafe of geojson.features){
+            const cafe_list = document.getElementById('cafe_list');
+            const cafe_item = cafe_list.appendChild(document.createElement('div'));
+            cafe_item.id = `cafe-${cafe.properties.id}`;
+            cafe_item.className = "item";
+
+            const link = cafe_item.appendChild(document.createElement('a'));
+            link.href = '#';
+            link.className = "title";
+            link.id = `link-${cafe.properties.id}`;
+            link.innerHTML = `<div><strong>${cafe.properties.name}</strong></div>`;
+            
+            const details = cafe_item.appendChild(document.createElement('div'));
+            const address = cafe.properties.address;
+            details.innerHTML += `${address}`;
+
+            const rating_table = cafe_item.appendChild(document.createElement('table'))
+            const coffee_rating = cafe.properties.coffee_rating
+            const food_rating = cafe.properties.food_rating
+            const ambience_rating = cafe.properties.ambience_rating
+            const overall_rating = cafe.properties.overall_rating
+            rating_table.innerHTML += `<tr><td>${coffee_rating}</td><td>${food_rating}</td><td>${ambience_rating}</td><td><b>${overall_rating}</b></td></tr><tr id="titles"><td><p>Coffee</p></td><td><p>Food</p></td><td><p>Ambience</p></td><td id='overall'><p>Overall</p></td></tr>`
+
+
+
+            link.addEventListener('click', function () {
+                for (const cafe of geojson.features) {
+                    if (this.id === `link-${cafe.properties.id}`) {
+                    flyToCafe(cafe);
+                    createPopUp(cafe);
+                    }
+                }
+                const activeItem = document.getElementsByClassName('active');
+                if (activeItem[0]) {
+                    activeItem[0].classList.remove('active');
+                }
+                this.parentNode.classList.add('active');
+            });
+
+        };
+    }
+    
+
+    function flyToCafe(currentFeature) {
+        map.flyTo({
+            center: currentFeature.geometry.coordinates,
+        });
+    }
+
+    function createPopUp(currentFeature) {
+        const popUps = document.getElementsByClassName('mapboxgl-popup');
+        /** Check if there is already a popup on the map and if so, remove it */
+        if (popUps[0]) popUps[0].remove();
+
+        const popup = new mapboxgl.Popup({offset:25,  closeOnClick: false })
+            .setLngLat(currentFeature.geometry.coordinates)
+            .setHTML('<div id="popup-img"><img src="../map/static/map/main_images/'+currentFeature.properties.id+'.png" width="100%" height="100%"/></div><div class="popup-main"><div class="popup-header"><div id="popup-title">'+currentFeature.properties.name+'</div><div id="popup-address">'+currentFeature.properties.address+'</div></div><table><tr><td class="individual-rating individual sans col">'+currentFeature.properties.sans_rating+'</td><td rowspan="4" class="rating col">'+currentFeature.properties.coffee_rating+'</td><td rowspan="4" class="rating col">'+currentFeature.properties.food_rating+'</td><td rowspan="4" class="rating col">'+currentFeature.properties.ambience_rating+'</td><td rowspan="4" class="overall overall-rating rating col">'+currentFeature.properties.overall_rating+'</td></tr><tr class="individual-name individual sans col"><td>Sanskruti</td></tr><tr><td class="individual-rating individual steve col">'+currentFeature.properties.stephen_rating+'</td></tr><tr class="individual-name individual steve col"><td>Stephen</td></tr><tr class="table-headers"><td colspan="2">Coffee</td><td class="food col">Food</td><td class="ambience col">Ambience</td><td class="overall col">Overall</td></tr></table></div>')
+            .addTo(map);
+    }
+
+    function addMarkers() {
+        /* For each feature in the GeoJSON object above: */
+        for (const marker of geojson.features) {
+            /* Create a div element for the marker. */
+            const el = document.createElement('div');
+            /* Assign a unique `id` to the marker. */
+            el.id = `marker-${marker.properties.id}`;
+            /* Assign the `marker` class to each marker for styling. */
+            el.className = 'marker-pink';
+
+            new mapboxgl.Marker(el)
+            .setLngLat(marker.geometry.coordinates)
+            .addTo(map);
+
+
+            el.addEventListener('click', (e) => {
+                /* Fly to the point */
+                flyToCafe(marker);
+                /* Close all other popups and display popup for clicked store */
+                createPopUp(marker);
+                /* Highlight listing in sidebar */
+                const activeItem = document.getElementsByClassName('active');
+                e.stopPropagation();
+                if (activeItem[0]) {
+                    activeItem[0].classList.remove('active');
+                }
+                const cafe = document.getElementById(`cafe-${marker.properties.id}`);
+                cafe.classList.add('active');
+            });
+        }
+    }
+   
+
+</script>
+
+{{test.id}}
+{% endblock %}
