@@ -1,7 +1,7 @@
 # Sanstephen_coffee
 ### A coffee review website made in python with the django framework.
 
-**www.coffeebear.pythonanywhere.com**
+**https://coffeebear.pythonanywhere.com/**
 
 Me and my partner enjoy going to new cafes and trying new coffees, so I created a website to keep track of our ratings. It is able to store ratings for different cafes and plot them on a map in order to keep track of the best cafes we visit.
 
